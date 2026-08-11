@@ -3,7 +3,6 @@ package org.example.sec.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -55,8 +54,25 @@ public class SecurityConfig { // 이름은 상관 X
                                 .anyRequest().authenticated()
                 )
                 // 로그인, 로그아웃
-                .formLogin(Customizer.withDefaults())
-                .logout(Customizer.withDefaults());
+//                .formLogin(Customizer.withDefaults())
+                .formLogin(
+                        form -> form
+                                .loginPage("/login")
+                                .loginProcessingUrl("/login")
+                                .usernameParameter("username")
+                                .passwordParameter("password")
+                                .defaultSuccessUrl("/")
+                                .failureUrl("/login?error")
+                                .permitAll()
+                )
+//                .logout(Customizer.withDefaults());
+                .logout(
+                        logout -> logout
+                                .logoutUrl("/logout")
+                                .logoutUrl("/login?logout")
+                                .invalidateHttpSession(true)
+                                .deleteCookies("JSESSIONID")
+                );
         return http.build();
     }
 }
