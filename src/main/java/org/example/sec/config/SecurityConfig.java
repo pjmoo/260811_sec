@@ -69,7 +69,7 @@ public class SecurityConfig { // 이름은 상관 X
                 .logout(
                         logout -> logout
                                 .logoutUrl("/logout")
-                                .logoutUrl("/login?logout")
+                                .logoutSuccessUrl("/login?logout")
                                 .invalidateHttpSession(true)
                                 .deleteCookies("JSESSIONID")
                 );
