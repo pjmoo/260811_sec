@@ -5,10 +5,36 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 public class SecurityConfig { // 이름은 상관 X
+    // 원래 자연적으로 가지고 있던 건 비활성화되고 우리가 만든 걸 사용
+    @Bean
+    InMemoryUserDetailsManager userDetailService(
+            SecurityProperty p,
+            PasswordEncoder passwordEncoder
+    ) {
+        UserDetails admin = User.builder()
+                .username(p.username())
+//                .password(p.password())
+                .password(passwordEncoder.encode(p.password()))
+                .roles(p.role())
+                .build();
+        return new InMemoryUserDetailsManager(admin);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+//        return new BCryptPasswordEncoder();
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
+
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) {
         // 필터 역할을 하여 dispatcher servlet에 앞서서 보안 처리

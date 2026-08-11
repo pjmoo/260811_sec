@@ -10,3 +10,14 @@ spring:
       on-profile: dev
   thymeleaf:
     cache: false
+  security:
+    user:
+      #      name: ${SECURITY_USER}
+      name: ilovespring
+      #      password: ${SECURITY_PASSWORD}
+      password: ilovejava
+app:
+  security:
+    username: admin
+    password: admin1234
+    role: ADMIN
