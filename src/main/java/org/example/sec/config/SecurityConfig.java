@@ -1,8 +1,8 @@
 package org.example.sec.config;
 
+import org.example.sec.security.CustomAccessDeniedHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -35,7 +35,8 @@ public class SecurityConfig { // 이름은 상관 X
     }
 
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http) {
+    SecurityFilterChain filterChain(HttpSecurity http,
+                                    CustomAccessDeniedHandler customAccessDeniedHandler) {
         // 필터 역할을 하여 dispatcher servlet에 앞서서 보안 처리
         // http -> 빌더
         http
@@ -45,9 +46,10 @@ public class SecurityConfig { // 이름은 상관 X
                         auth -> auth
                                 // 위에서 만난 패턴이 먼저 처리되며, 그 이후를 진행하지 X
                                 .requestMatchers("/").permitAll()
+//                                .requestMatchers("/").hasRole("PREMIUM")
                                 .requestMatchers("/error/**").permitAll()
-                                .requestMatchers("/free/1", "/free/2").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/free/3", "/free/3").permitAll()
+                                .requestMatchers("/free/1", "/free/2").hasRole("PREMIUM")
+//                                .requestMatchers(HttpMethod.GET, "/free/3", "/free/3").permitAll()
                                 // 모든 요청에 대해서 허락하겠다
                                 // .anyRequest().permitAll()
                                 // 모든 요청에 대해서 인가 요청을 하겠다
@@ -72,7 +74,9 @@ public class SecurityConfig { // 이름은 상관 X
                                 .logoutSuccessUrl("/login?logout")
                                 .invalidateHttpSession(true)
                                 .deleteCookies("JSESSIONID")
-                );
+                )
+                .exceptionHandling(ex -> ex
+                        .accessDeniedHandler(customAccessDeniedHandler));
         return http.build();
     }
 }
