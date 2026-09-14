@@ -1,5 +1,50 @@
 # 🔒 Spring Security 기초 실습 프로젝트 (Sec)
 
+<!-- workspace-readme-learning:start -->
+## 파일과 연결한 학습 안내
+
+아래 설명은 이 폴더의 실제 소스와 빌드 설정을 기준으로 정리했습니다. 기존 소개의 기능 설명은 연결된 파일과 함께 확인할 수 있습니다.
+
+### 주요 파일과 역할
+
+| 파일 | 역할과 읽을 내용 |
+| --- | --- |
+| [build.gradle](<build.gradle>) | Gradle 플러그인·JDK·의존성과 빌드 작업 설정 |
+| [src/main/java/org/example/sec/controller/FreeController.java](<src/main/java/org/example/sec/controller/FreeController.java>) | 요청 매핑·입력 바인딩과 응답 처리 — `free1` |
+| [src/main/java/org/example/sec/controller/LoginController.java](<src/main/java/org/example/sec/controller/LoginController.java>) | 요청 매핑·입력 바인딩과 응답 처리 — `login` |
+| [src/main/java/org/example/sec/SecApplication.java](<src/main/java/org/example/sec/SecApplication.java>) | Spring Boot 애플리케이션 진입점 — `main` |
+| [src/main/resources/templates/index.html](<src/main/resources/templates/index.html>) | 스프링 시큐리티 화면 |
+| [HELP.md](<HELP.md>) | 설계·학습·운영 내용을 설명하는 문서 |
+| [settings.gradle](<settings.gradle>) | 프로젝트 구성 자료 |
+| [src/main/java/org/example/sec/config/SecurityConfig.java](<src/main/java/org/example/sec/config/SecurityConfig.java>) | 빈 등록 또는 외부 설정 구성 — `passwordEncoder` |
+| [src/main/java/org/example/sec/config/SecurityProperty.java](<src/main/java/org/example/sec/config/SecurityProperty.java>) | 빈 등록 또는 외부 설정 구성 — `SecurityProperty` |
+| [src/main/java/org/example/sec/security/CustomAccessDeniedHandler.java](<src/main/java/org/example/sec/security/CustomAccessDeniedHandler.java>) | Java 타입과 동작 정의 — `handle` |
+| [src/main/resources/templates/error/403.html](<src/main/resources/templates/error/403.html>) | 스프링 시큐리티 화면 |
+| [src/main/resources/templates/error/404.html](<src/main/resources/templates/error/404.html>) | 스프링 시큐리티 화면 |
+| [src/main/resources/templates/login.html](<src/main/resources/templates/login.html>) | 스프링 시큐리티 화면 |
+| [src/test/java/org/example/sec/SecApplicationTests.java](<src/test/java/org/example/sec/SecApplicationTests.java>) | 테스트 코드 |
+
+### 실행과 설정 확인
+
+- [build.gradle](<build.gradle>)의 플러그인과 의존성을 기준으로 구성합니다. 선언된 Java toolchain은 17입니다.
+- Windows에서는 저장소 루트에서 `.\gradlew.bat bootRun`을 사용합니다.
+- 환경 설정: [src/main/resources/application.yaml](<src/main/resources/application.yaml>).
+- 코드·설정에서 참조하는 환경 변수 이름: `SECURITY_PASSWORD`, `SECURITY_USER`. 기본값과 필수 여부는 각 참조 위치에서 확인합니다.
+
+### 관련 PDF와 보충 설명
+
+- [7/3 강의](<../260629_ex/새 폴더/7-3/README.md>): 쿠키·세션·필터의 상태 식별과 요청 제어를 연결합니다.
+
+이 링크는 구현을 이해하기 위한 관련 기초 자료입니다. 해당 강의가 이 저장소의 모든 기능이나 이후 버전의 API를 설명한다는 뜻은 아닙니다.
+
+### 읽는 순서와 복습
+
+- 로그인 상태 생성 → 세션 식별 → 공통 필터 → 접근 허용·거부를 추적합니다. 로그인 성공·실패·만료·로그아웃과 권한 없는 접근을 구분합니다.
+
+테스트 소스가 포함되어 있습니다. 이 문서 수정 작업에서는 애플리케이션·DB·외부 API 테스트를 실행하지 않았으므로 실행 결과를 보장하는 기록은 아닙니다.
+
+<!-- workspace-readme-learning:end -->
+
 이 프로젝트는 **Spring Boot** 환경에서 **Spring Security**와 **Thymeleaf**를 연동하여 웹 보안의 기초 동작 원리를 실습하는 토이 프로젝트입니다.
 
 ---
@@ -15,7 +60,7 @@
 ## 🔑 핵심 실습 내용
 
 ### 1. 보안 필터 체인 (SecurityFilterChain) 설정
-[`SecurityConfig.java`](file:///C:/workspace/sec/src/main/java/org/example/sec/config/SecurityConfig.java) 파일을 통해 스프링 시큐리티 필터들의 규칙을 정의했습니다.
+[`SecurityConfig.java`](<src/main/java/org/example/sec/config/SecurityConfig.java>) 파일을 통해 스프링 시큐리티 필터들의 규칙을 정의했습니다.
 
 - **URL별 접근 권한 설정**:
   - `/`, `/error/**`, `/free/1`, `/free/2` 경로는 로그인 없이 모두 접근 가능 (`permitAll()`).
@@ -30,7 +75,7 @@
 사용자 정보를 하드코딩하지 않고 스프링 빈으로 관리하며, 비밀번호를 안전하게 암호화했습니다.
 
 - **외부 설정파일 주입 (`@ConfigurationProperties`)**:
-  - [`SecurityProperty.java`](file:///C:/workspace/sec/src/main/java/org/example/sec/config/SecurityProperty.java) 레코드를 생성하여 [`application.yaml`](file:///C:/workspace/sec/src/main/resources/application.yaml)의 `app.security` 경로 하위의 설정값들(`username`, `password`, `role`)을 매핑해 보안 데이터를 안전하게 분리했습니다.
+  - [`SecurityProperty.java`](<src/main/java/org/example/sec/config/SecurityProperty.java>) 레코드를 생성하여 [`application.yaml`](<src/main/resources/application.yaml>)의 `app.security` 경로 하위의 설정값들(`username`, `password`, `role`)을 매핑해 보안 데이터를 안전하게 분리했습니다.
 - **인메모리 유저 매니저 (`InMemoryUserDetailsManager`)**:
   - 데이터베이스 연동 전, 서버 메모리 상에 설정값에 정의된 관리자 계정(`admin / admin1234`)을 임시 등록하여 시큐리티 인증에 사용했습니다.
 - **패스워드 암호화 (`PasswordEncoder`)**:
@@ -41,8 +86,8 @@
 ### 3. 커스텀 로그인 / 로그아웃 화면 구현
 기본 제공되는 시큐리티 로그인 폼 대신 사용자 맞춤형 화면을 만들고 Thymeleaf 기능을 활용했습니다.
 
-- **로그인 컨트롤러**: [`LoginController.java`](file:///C:/workspace/sec/src/main/java/org/example/sec/controller/LoginController.java)를 생성하여 `/login` GET 요청 시 직접 만든 [`login.html`](file:///C:/workspace/sec/src/main/resources/templates/login.html) 뷰를 반환합니다.
-- **타임리프 시큐리티 연동**: `thymeleaf-extras-springsecurity6`를 활용해 로그인 상태인 사용자와 비로그인 사용자에게 보이는 메인 화면([`index.html`](file:///C:/workspace/sec/src/main/resources/templates/index.html)) 구성을 다르게 제어하고 로그아웃 버튼을 유기적으로 배치했습니다.
+- **로그인 컨트롤러**: [`LoginController.java`](<src/main/java/org/example/sec/controller/LoginController.java>)를 생성하여 `/login` GET 요청 시 직접 만든 [`login.html`](<src/main/resources/templates/login.html>) 뷰를 반환합니다.
+- **타임리프 시큐리티 연동**: `thymeleaf-extras-springsecurity6`를 활용해 로그인 상태인 사용자와 비로그인 사용자에게 보이는 메인 화면([`index.html`](<src/main/resources/templates/index.html>)) 구성을 다르게 제어하고 로그아웃 버튼을 유기적으로 배치했습니다.
 
 ---
 
@@ -50,7 +95,32 @@
 보안 권한 부족 오류 및 잘못된 URL 호출을 처리하는 사용자 친화적 에러 페이지를 설정했습니다.
 
 - **403 Forbidden (권한 없음)**:
-  - [`CustomAccessDeniedHandler.java`](file:///C:/workspace/sec/src/main/java/org/example/sec/security/CustomAccessDeniedHandler.java)를 구현하여 인가되지 않은 권한으로 자원에 접근할 경우 `/error/403` 경로로 포워딩되도록 설정했습니다.
-  - 이와 매핑되는 [`403.html`](file:///C:/workspace/sec/src/main/resources/templates/error/403.html) 화면을 통해 "접근 권한이 없습니다" 경고 메시지를 노출합니다.
+  - [`CustomAccessDeniedHandler.java`](<src/main/java/org/example/sec/security/CustomAccessDeniedHandler.java>)를 구현하여 인가되지 않은 권한으로 자원에 접근할 경우 `/error/403` 경로로 포워딩되도록 설정했습니다.
+  - 이와 매핑되는 [`403.html`](<src/main/resources/templates/error/403.html>) 화면을 통해 "접근 권한이 없습니다" 경고 메시지를 노출합니다.
 - **404 Not Found (페이지 찾을 수 없음)**:
-  - Spring Boot 표준 디렉토리 매핑 규칙에 따라 [`404.html`](file:///C:/workspace/sec/src/main/resources/templates/error/404.html) 템플릿을 생성하여 잘못된 주소 접근 시 에러 페이지가 깔끔하게 노출되도록 구성했습니다.
+  - Spring Boot 표준 디렉토리 매핑 규칙에 따라 [`404.html`](<src/main/resources/templates/error/404.html>) 템플릿을 생성하여 잘못된 주소 접근 시 에러 페이지가 깔끔하게 노출되도록 구성했습니다.
+
+<!-- pdf-til-supplement:start -->
+## TIL 부연 설명 — PDF와 연결하기
+
+기존 실습 내용을 이해하기 위한 PDF 기반 부연 설명이다. 아래 예시는 개념을 설명하기 위한 것이며, 이 프로젝트에서 실행해 관찰한 결과와는 구분한다. 페이지 번호는 표지를 포함한 PDF 순서다.
+
+함께 읽을 파일: [src/main/java/org/example/sec/controller/FreeController.java](<src/main/java/org/example/sec/controller/FreeController.java>) · [src/main/java/org/example/sec/controller/LoginController.java](<src/main/java/org/example/sec/controller/LoginController.java>) · [src/main/java/org/example/sec/SecApplication.java](<src/main/java/org/example/sec/SecApplication.java>)
+
+### 인증과 인가는 서로 다른 판단
+
+인증은 요청 주체가 누구인지, 인가는 그 주체에게 행동을 허용할지 판단한다. SecurityFilterChain은 컨트롤러 앞에서 보안 규칙을 적용한다. 로그인 화면에 들어갈 수 있어야 로그인을 할 수 있으므로 공개 경로와 보호 경로의 구분이 필요하다.
+
+**예시로 이해하기:** 익명 사용자, 일반 회원, 관리자라는 세 경우를 같은 URL에 대입해 허용 결과를 예상한다. 로그인 성공만으로 게시글 수정 권한이 생기는 것은 아니다. 비밀번호는 복호화해서 비교하는 값이 아니라 PasswordEncoder로 해시를 검증하는 흐름으로 이해한다.
+
+근거: 411 Spring Security로 인증과 인가 적용하기 — [4쪽](<../260629_ex/새 폴더/8-11/411_Spring_Security로_인증과_인가_적용하기.pdf#page=4>) · [11쪽](<../260629_ex/새 폴더/8-11/411_Spring_Security로_인증과_인가_적용하기.pdf#page=11>) · [16쪽](<../260629_ex/새 폴더/8-11/411_Spring_Security로_인증과_인가_적용하기.pdf#page=16>) · [20쪽](<../260629_ex/새 폴더/8-11/411_Spring_Security로_인증과_인가_적용하기.pdf#page=20>) · [43쪽](<../260629_ex/새 폴더/8-11/411_Spring_Security로_인증과_인가_적용하기.pdf#page=43>)
+
+### 쿠키는 전달 수단, 세션은 서버 상태
+
+쿠키는 브라우저가 조건에 맞는 요청에 실어 보내는 값이고 세션은 서버가 식별자에 연결해 보관하는 상태다. 세션 방식도 브라우저가 세션 ID를 제시하므로 식별자 보호와 만료 처리가 필요하다. 인증으로 신원을 확인한 후 실제 자원에 대한 인가를 별도로 판단한다.
+
+**예시로 이해하기:** 로그인 → 세션 생성 → 이후 요청의 세션 조회 → 로그아웃 시 무효화 순서로 읽는다. HttpOnly는 자바스크립트의 쿠키 읽기를 제한하지만 브라우저의 자동 전송은 막지 않는다. Secure·SameSite·CSRF 정책은 요청을 보내는 방식과 함께 이해한다.
+
+근거: 233-1 쿠키와 세션 — [4쪽](<../260629_ex/새 폴더/7-2/233-1_쿠키와_세션.pdf#page=4>) · [6쪽](<../260629_ex/새 폴더/7-2/233-1_쿠키와_세션.pdf#page=6>) · [10쪽](<../260629_ex/새 폴더/7-2/233-1_쿠키와_세션.pdf#page=10>) · [12쪽](<../260629_ex/새 폴더/7-2/233-1_쿠키와_세션.pdf#page=12>) · [17쪽](<../260629_ex/새 폴더/7-2/233-1_쿠키와_세션.pdf#page=17>)
+
+<!-- pdf-til-supplement:end -->
